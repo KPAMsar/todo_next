@@ -1,8 +1,18 @@
 "use client";
 import { useState } from "react";
 import { RxDotsVertical } from "react-icons/rx";
+import Modal from "@/components/modal";
 
 const Login = () => {
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  const initModal = () => {
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
   const data = [
     {
       task: "Cleaning",
@@ -70,10 +80,6 @@ const Login = () => {
     },
   ];
 
-  const initModal = () => {
-    // Your logic for initializing the modal
-  };
-
   const [alltask, setAllTask] = useState(true);
   return (
     <>
@@ -110,7 +116,7 @@ const Login = () => {
         </div>
 
         <div className="mt-4 lg:w-[70dvw] lg:mx-auto">
-          <p className="text-[#00356B] text-[20px]   font-[700] lg:text-[40px]  ">
+          <p className="text-[#00356B] text-[18px]  text-center   font-[600] lg:text-[30px]  ">
             {alltask ? "All Tasks" : " Completed Tasks"}
           </p>
           <table className="table w-[100dvw] overflow-hidden lg:w-full lg:pb-[60px]">
@@ -164,6 +170,8 @@ const Login = () => {
           </table>
         </div>
       </div>
+
+      {isModalVisible && <Modal onClose={closeModal} />}
     </>
   );
 };
