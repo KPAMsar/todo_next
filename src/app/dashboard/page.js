@@ -1,10 +1,13 @@
 "use client";
 import { useState } from "react";
 import { RxDotsVertical } from "react-icons/rx";
-import Modal from "@/components/modal";
+import AddTaskModal from "@/components/modal";
+import Dropdown from "@/components/dropdown";
 
-const Login = () => {
+const Dashboard = () => {
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isDropdownVisible, setDropdownVisible] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState(null);
 
   const initModal = () => {
     setModalVisible(true);
@@ -13,6 +16,22 @@ const Login = () => {
   const closeModal = () => {
     setModalVisible(false);
   };
+
+  const openDropdown = () => {
+    setDropdownVisible(true);
+  };
+
+  const closeDropdown = () => {
+    setDropdownVisible(false);
+  };
+
+  const handleSelect = (option) => {
+    // Handle the selected option, e.g., update state or perform an action
+    console.log(`Selected option: ${option}`);
+  };
+
+  const options = ["Option 1", "Option 2", "Option 3"];
+
   const data = [
     {
       task: "Cleaning",
@@ -156,13 +175,31 @@ const Login = () => {
                   >
                     <button className="btn  text-[green]">{item.status}</button>
                   </td>
-                  <td
+                  {/* <td
                     onClick={initModal}
                     style={{ border: "none", textAlign: "center" }}
                   >
                     <RxDotsVertical
                       style={{ display: "block", margin: "auto" }}
                     />
+                  </td> */}
+                  <td
+                    style={{ border: "none", textAlign: "center" }}
+                    className="p-[1rem] text-[#787878]"
+                  >
+                    <div style={{ position: "relative" }}>
+                      <RxDotsVertical
+                        style={{
+                          display: "block",
+                          margin: "auto",
+                          cursor: "pointer",
+                        }}
+                        onClick={openDropdown}
+                      />
+                      {isDropdownVisible && (
+                        <Dropdown options={options} onSelect={handleSelect} />
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -171,8 +208,8 @@ const Login = () => {
         </div>
       </div>
 
-      {isModalVisible && <Modal onClose={closeModal} />}
+      {isModalVisible && <AddTaskModal onClose={closeModal} />}
     </>
   );
 };
-export default Login;
+export default Dashboard;
