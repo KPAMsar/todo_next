@@ -13,6 +13,8 @@ import {
   UPDATE_MUTATION,
   DELETE_TODO_MUTATION,
 } from "../graphql/mutations.graphql";
+import DoneTask from "../utils/doneTask";
+import UnfinishedTask from "../utils/unfinishedTask";
 
 const Dashboard = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -25,6 +27,7 @@ const Dashboard = () => {
   const [btn, setBtn] = useState();
   const [updateModal, setUpdateModal] = useState(false);
   const [updatedTask, setUpdatedTask] = useState();
+  const [selectedTodo, setSelectedTodo] = useState();
 
   // const { loading, error, data } = useQuery(GET_DATA);
 
@@ -95,11 +98,12 @@ const Dashboard = () => {
   const handleDone = async (e) => {
     e.preventDefault();
     try {
-      console.log("updatedTask", updatedTask);
+      console.log("updatedTask", selectedItemId);
       const result = await client.mutate({
         mutation: UPDATE_MUTATION,
         variables: {
           id: selectedItemId,
+          task: selectedTodo,
           status: "Done",
         },
       });
@@ -129,26 +133,6 @@ const Dashboard = () => {
 
     fetchData();
   }, [client]);
-
-  // const handleDone = async () => {
-  //   console.log(selectedItemId);
-  //   setLoadingDone(true);
-
-  //   try {
-  //     const result = await client.mutate({
-  //       mutation: UPDATE_MUTATION,
-  //       variables: {
-  //         id: selectedItemId,
-  //         status: "Done",
-  //       },
-  //     });
-
-  //     setSelectedItemId("");
-  //     console.log("Task updated successfully:", result.data);
-  //   } catch (error) {
-  //     console.error("Error updating task:", error.message);
-  //   }
-  // };
 
   const openModal = () => {
     setModalVisible(true);
@@ -221,100 +205,8 @@ const Dashboard = () => {
                 <th className="min-w-[50px]">Actions</th>
               </tr>
             </thead>
-            <tbody className=" text-[#00356B] max-h-[500px] overflow-auto">
-              {allTodo?.map((item, index) => (
-                <tr
-                  key={index}
-                  style={{
-                    border: "none",
-                    justifyItems: "center",
-                  }}
-                >
-                  <td
-                    style={{ border: "none", textAlign: "center" }}
-                    className="p-[1rem] text-[#787878]"
-                  >
-                    {index + 1}
-                  </td>
-                  <td
-                    style={{ border: "none" }}
-                    className="p-[1rem] text-[#787878] text-center"
-                  >
-                    {item.task}
-                  </td>
-                  <td
-                    style={{ border: "none" }}
-                    className="p-[1rem]  text-[#787878] flex justify-center"
-                  >
-                    <button className="btn  text-[#787878]">
-                      {item.status}
-                    </button>
-                  </td>
-                  {/* <td
-                    onClick={initModal}
-                    style={{ border: "none", textAlign: "center" }}
-                  >
-                    <RxDotsVertical
-                      style={{ display: "block", margin: "auto" }}
-                    />
-                  </td> */}
-                  <td
-                    style={{ border: "none", textAlign: "center" }}
-                    className="p-[1rem] text-[#787878]"
-                  >
-                    <div style={{ position: "relative" }}>
-                      {/* <RxDotsVertical
-                        style={{
-                          display: "block",
-                          margin: "auto",
-                          cursor: "pointer",
-                        }}
-                        onClick={openDropdown}
-                      /> */}
-                      {/* {isDropdownVisible && (
-                        // <Dropdown options={options} onSelect={handleSelect} />
-                      )} */}
-                      <div className="flex justify-evenly">
-                        <button
-                          type="button"
-                          id={item.id}
-                          className="btn mt-4 p-2 px-4 bg-[green] text-white rounded-md"
-                          onClick={() => {
-                            setSelectedItemId(item.id);
-                            handleDone();
-                          }}
-                        >
-                          Done
-                        </button>
-                        <button
-                          type="button"
-                          id={item.id}
-                          className="btn mt-4 p-2 px-4 bg-[#00356B] text-white rounded-md"
-                          onClick={() => {
-                            setSelectedItemId(item.id);
-
-                            setUpdateModal(true);
-                          }}
-                        >
-                          Update
-                        </button>
-                        <button
-                          type="button"
-                          id={item.id}
-                          className="btn mt-4 p-2 px-4 bg-[#FF0000] text-white rounded-md"
-                          onClick={() => {
-                            setSelectedItemId(item.id);
-                            handleDelete(item.id);
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+            {alltask && <UnfinishedTask />}
+            {!alltask && <DoneTask />}
 
             <div
               className="fixed bottom-0 right-0 p-[20px] m-[30px] flex items-center justify-center bg-[#00356B] text-white rounded-[60px]"
