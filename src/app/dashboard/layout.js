@@ -1,28 +1,20 @@
-// import { useState, useEffect } from "react";
+"use client";
 import { http } from "../utils/http";
-import { NextRequest } from "next/server";
-import { cookies } from "next/headers";
+// import { NextRequest } from "next/server";
+// import { cookies } from "next/headers";
+import { useEffect, useState } from "react";
 
 const DashboardLayout = ({ children }, req) => {
-  const cookieStore = cookies();
-  console.log("cookies", cookieStore);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  useEffect(() => {
+    const authenticated = sessionStorage.getItem("access_token") !== null;
+    setIsAuthenticated(authenticated !== null);
 
-  return <main>{children}</main>;
+    if (!authenticated) {
+      window.location.replace("/login");
+    }
+  });
+  return isAuthenticated ? <main>{children}</main> : <p>Loading...</p>;
 };
-
-async function getUser() {
-  try {
-    const { data } = http("/get-user", "GET");
-    return {
-      user: data,
-      error: null,
-    };
-  } catch (e) {
-    return {
-      user: null,
-      error,
-    };
-  }
-}
 
 export default DashboardLayout;
