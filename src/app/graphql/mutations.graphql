@@ -21,6 +21,7 @@ export const UPDATE_MUTATION = gql`
   }
 `;
 
+
 export const DELETE_TODO_MUTATION = gql`
   mutation DeleteTodo($id: String!) {
     deleteTodo(id: $id) {

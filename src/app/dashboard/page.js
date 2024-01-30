@@ -69,21 +69,47 @@ const Dashboard = () => {
     setTask("");
   };
 
-  const handleUpdateTodo = async (id, updatedTask) => {
+  const handleUpdateTodo = async (e) => {
+    e.preventDefault();
     try {
+      console.log("updatedTask", updatedTask);
       const result = await client.mutate({
         mutation: UPDATE_MUTATION,
+
         variables: {
           id: selectedItemId,
           task: updatedTask,
           status: "Pending",
         },
       });
+
+      toast.success("Succful");
+      setUpdatedTask("");
+      setSelectedItemId("");
       console.log("Todo updated successfully:", result.data.updateTodo);
-      // Handle success or update state if needed
     } catch (error) {
       console.error("Error updating todo:", error.message);
-      // Handle error if needed
+    }
+  };
+
+  const handleDone = async (e) => {
+    e.preventDefault();
+    try {
+      console.log("updatedTask", updatedTask);
+      const result = await client.mutate({
+        mutation: UPDATE_MUTATION,
+        variables: {
+          id: selectedItemId,
+          status: "Done",
+        },
+      });
+
+      toast.success("Successful");
+      setUpdatedTask("");
+      setSelectedItemId("");
+      console.log("Todo updated successfully:", result.data.updateTodo);
+    } catch (error) {
+      console.error("Error updating todo:", error.message);
     }
   };
 
@@ -104,25 +130,25 @@ const Dashboard = () => {
     fetchData();
   }, [client]);
 
-  const handleDone = async () => {
-    console.log(selectedItemId);
-    setLoadingDone(true);
+  // const handleDone = async () => {
+  //   console.log(selectedItemId);
+  //   setLoadingDone(true);
 
-    try {
-      const result = await client.mutate({
-        mutation: UPDATE_MUTATION,
-        variables: {
-          id: selectedItemId,
-          status: "Done",
-        },
-      });
+  //   try {
+  //     const result = await client.mutate({
+  //       mutation: UPDATE_MUTATION,
+  //       variables: {
+  //         id: selectedItemId,
+  //         status: "Done",
+  //       },
+  //     });
 
-      setSelectedItemId("");
-      console.log("Task updated successfully:", result.data);
-    } catch (error) {
-      console.error("Error updating task:", error.message);
-    }
-  };
+  //     setSelectedItemId("");
+  //     console.log("Task updated successfully:", result.data);
+  //   } catch (error) {
+  //     console.error("Error updating task:", error.message);
+  //   }
+  // };
 
   const openModal = () => {
     setModalVisible(true);
