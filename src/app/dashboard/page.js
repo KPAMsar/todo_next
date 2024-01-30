@@ -205,8 +205,156 @@ const Dashboard = () => {
                 <th className="min-w-[50px]">Actions</th>
               </tr>
             </thead>
-            {alltask && <UnfinishedTask />}
-            {!alltask && <DoneTask />}
+            {alltask && (
+              <tbody className=" text-[#00356B] max-h-[500px] overflow-auto">
+                {allTodo
+                  ?.filter((item) => item.status !== "Done")
+                  .map((item, index) => (
+                    <tr
+                      key={index}
+                      style={{
+                        justifyItems: "center",
+                        alignItems: "center",
+                      }}
+                      className=""
+                    >
+                      <td
+                        style={{ textAlign: "center" }}
+                        className="p-[1rem] text-[#00356B]"
+                      >
+                        {index + 1}
+                      </td>
+                      <td className="p-[1rem] text-[#00356B] text-center">
+                        {item.task}
+                      </td>
+                      <td className="p-[1rem] text-[#787878] text-center">
+                        <button className="btn  text-[#00356B]">
+                          {item.status}
+                        </button>
+                      </td>
+
+                      <td
+                        style={{ textAlign: "center" }}
+                        className="p-[1rem] text-[#00356B]"
+                      >
+                        <div style={{ position: "relative" }}>
+                          <div className="flex justify-evenly">
+                            <button
+                              type="button"
+                              id={item.id}
+                              className="btn mt-4 p-2 px-4 bg-[green] text-white rounded-md"
+                              onClick={(e) => {
+                                setSelectedItemId(item.id);
+                                handleDone(e);
+                                setSelectedTodo(item.task);
+                              }}
+                            >
+                              Done
+                            </button>
+                            <button
+                              type="button"
+                              id={item.id}
+                              className="btn mt-4 p-2 px-4 bg-[#00356B] text-white rounded-md"
+                              onClick={() => {
+                                setSelectedItemId(item.id);
+
+                                setUpdateModal(true);
+                              }}
+                            >
+                              Update
+                            </button>
+                            <button
+                              type="button"
+                              id={item.id}
+                              className="btn mt-4 p-2 px-4 bg-[#FF0000] text-white rounded-md"
+                              onClick={() => {
+                                setSelectedItemId(item.id);
+                                handleDelete(item.id);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            )}
+            {!alltask && (
+              <tbody className=" text-[#00356B] max-h-[500px] overflow-auto">
+                {allTodo
+                  .filter((item) => item.status === "Done")
+                  .map((item, index) => (
+                    <tr
+                      key={index}
+                      style={{
+                        justifyItems: "center",
+                      }}
+                    >
+                      <td
+                        style={{ textAlign: "center" }}
+                        className="p-[1rem] text-[#787878]"
+                      >
+                        {index + 1}
+                      </td>
+                      <td className="p-[1rem] text-[#787878] text-center">
+                        {item.task}
+                      </td>
+                      <td className="p-[1rem] text-[#787878] text-center">
+                        <button className="btn  text-[#787878]">
+                          {item.status}
+                        </button>
+                      </td>
+
+                      <td
+                        style={{ textAlign: "center" }}
+                        className="p-[1rem] text-[#787878]"
+                      >
+                        <div style={{ position: "relative" }}>
+                          <div className="flex justify-evenly">
+                            <button
+                              type="button"
+                              id={item.id}
+                              className="btn mt-4 p-2 px-4 bg-[green] text-white rounded-md"
+                              onClick={(e) => {
+                                setSelectedItemId(item.id);
+                                handleDone(e);
+                                setSelectedTodo(item.task);
+                              }}
+                            >
+                              Done
+                            </button>
+                            <button
+                              type="button"
+                              id={item.id}
+                              className="btn mt-4 p-2 px-4 bg-[#00356B] text-white rounded-md"
+                              onClick={() => {
+                                setSelectedItemId(item.id);
+
+                                setUpdateModal(true);
+                              }}
+                            >
+                              Update
+                            </button>
+                            <button
+                              type="button"
+                              id={item.id}
+                              className="btn mt-4 p-2 px-4 bg-[#FF0000] text-white rounded-md"
+                              onClick={() => {
+                                setSelectedItemId(item.id);
+                                handleDelete(item.id);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            )}
 
             <div
               className="fixed bottom-0 right-0 p-[20px] m-[30px] flex items-center justify-center bg-[#00356B] text-white rounded-[60px]"

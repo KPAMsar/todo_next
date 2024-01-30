@@ -35,50 +35,34 @@ export const UnfinishedTask = () => {
               style={{
                 border: "none",
                 justifyItems: "center",
+                alignItems: "center",
               }}
+              className=""
             >
               <td
                 style={{ border: "none", textAlign: "center" }}
-                className="p-[1rem] text-[#787878]"
+                className="p-[1rem] text-[#00356B]"
               >
                 {index + 1}
               </td>
               <td
                 style={{ border: "none" }}
-                className="p-[1rem] text-[#787878] text-center"
+                className="p-[1rem] text-[#00356B] text-center"
               >
                 {item.task}
               </td>
               <td
                 style={{ border: "none" }}
-                className="p-[1rem]  text-[#787878] flex justify-center"
+                className="p-[1rem]  text-[#00356B] flex justify-center"
               >
-                <button className="btn  text-[#787878]">{item.status}</button>
+                <button className="btn  text-[#00356B]">{item.status}</button>
               </td>
-              {/* <td
-                    onClick={initModal}
-                    style={{ border: "none", textAlign: "center" }}
-                  >
-                    <RxDotsVertical
-                      style={{ display: "block", margin: "auto" }}
-                    />
-                  </td> */}
+
               <td
                 style={{ border: "none", textAlign: "center" }}
-                className="p-[1rem] text-[#787878]"
+                className="p-[1rem] text-[#00356B]"
               >
                 <div style={{ position: "relative" }}>
-                  {/* <RxDotsVertical
-                        style={{
-                          display: "block",
-                          margin: "auto",
-                          cursor: "pointer",
-                        }}
-                        onClick={openDropdown}
-                      /> */}
-                  {/* {isDropdownVisible && (
-                        // <Dropdown options={options} onSelect={handleSelect} />
-                      )} */}
                   <div className="flex justify-evenly">
                     <button
                       type="button"
