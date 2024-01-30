@@ -1,0 +1,30 @@
+import { gql } from "@apollo/client";
+
+export const ADD_TODO_MUTATION = gql`
+  mutation AddTodo($task: String!, $status: String!) {
+    createTodo(task: $task, status: $status) {
+      id
+      task
+      status
+    }
+  }
+`;
+
+
+export const UPDATE_MUTATION = gql`
+  mutation UpdateTodo($id: String!, $task: String!, $status: String!) {
+    updateTodo(id: $id, task: $task, status: $status) {
+      id
+      task
+      status
+    }
+  }
+`;
+
+export const DELETE_TODO_MUTATION = gql`
+  mutation DeleteTodo($id: String!) {
+    deleteTodo(id: $id) {
+      id
+    }
+  }
+`;

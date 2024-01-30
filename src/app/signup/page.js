@@ -1,16 +1,28 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import { http } from "../utils/http";
+import { useRouter } from "next/router";
 
-const Login = () => {
-  const [email, setEmail] = useState(""),
-    [password, setPassword] = useState("");
+const Signup = () => {
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  const [fullname, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleSignin = async (e) => {
+    setLoading(true);
     e.preventDefault();
-
     if (email == undefined || email == null || !email) {
       toast.error("Email is required");
+      return false;
+    }
+
+    if (fullname == undefined || email == null || !email) {
+      toast.error("Name is required");
       return false;
     }
     if (password == undefined || !password || password === null) {
@@ -18,42 +30,36 @@ const Login = () => {
       return false;
     }
 
-    const infoBox = toast.loading("Please wait your request is processing...");
-    try {
-      const adminUser = await LoginAdmin({ email, password });
-
-      toast.update(infoBox, {
-        render: "Success!",
-        type: "success",
-        isLoading: false,
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        progress: undefined,
-      });
-
-      console.log("thee", adminUser);
-      // updateUser(user);
-
-      // navigate("/dashboard", { replace: true });
-      window.localStorage.setItem(
-        "crypt8-admin-authtoken",
-        adminUser.data.token
-      );
-
-      window.location.replace("/");
-    } catch (error) {
-      const displayMsg = error?.data?.message;
-
-      toast.error(infoBox, {
-        type: "error",
-        isLoading: false,
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        progress: undefined,
-      });
+    if (confirmPassword == undefined || !password || password === null) {
+      toast.error("Password is required");
+      return false;
     }
+    if (password !== confirmPassword) {
+      toast.error("Password mismatch");
+      return false;
+    }
+
+    const response = await http("signup", "POST", {
+      fullname,
+      email,
+      password,
+    });
+
+    let allCookies = document.cookie;
+    console.log("allCookies", allCookies);
+
+    Cookies.get("access_token");
+
+    if (response?.status === "success") {
+      toast.success(" Login successful");
+      window.location.replace("/login");
+      setLoading(false);
+    } else {
+      toast.error("Something went wrong");
+      return;
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -66,42 +72,18 @@ const Login = () => {
                 Sign Up
               </p>
             </div>
-            <form id="login-form" onSubmit={handleLogin}>
+            <form id="login-form" onSubmit={handleSignin}>
               <div className="text-[#00356B] text-[18px]">
                 <p>Name</p>
                 <input
-                  type="email"
-                  id="email"
+                  type="text"
+                  id="name"
                   name="email"
-                  className=" border border-solid border-[#00356B] border-w-1 text-[white]  lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
+                  className=" border border-solid border-[#00356B] border-w-1   lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
                   placeholder="Firstname Middlename Lastname "
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setFullName(e.target.value)}
                 />
               </div>
-              {/* 
-              <div className="text-[#00356B] text-[18px]">
-                <p>Lastname</p>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className=" border border-solid border-[#00356B] border-w-1 text-[white]  lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
-                  placeholder="kpamsarshija@gmail.com"
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-
-              <div className="text-[#00356B] text-[18px]">
-                <p>Other names</p>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className=" border border-solid border-[#00356B] border-w-1 text-[white]  lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
-                  placeholder="kpamsarshija@gmail.com"
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div> */}
 
               <div className="text-[#00356B] text-[18px]">
                 <p>Email Address</p>
@@ -109,7 +91,7 @@ const Login = () => {
                   type="email"
                   id="email"
                   name="email"
-                  className=" border border-solid border-[#00356B] border-w-1 text-[white]  lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
+                  className=" border border-solid border-[#00356B] border-w-1   lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
                   placeholder="kpamsarshija@gmail.com"
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -117,8 +99,8 @@ const Login = () => {
               <div className="text-[#00356B] text-[18px]">
                 <p>Password</p>
                 <input
-                  type="text"
-                  className=" border border-solid border-[#00356B] border-w-1  text-[white]  lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
+                  type="password"
+                  className=" border border-solid border-[#00356B] border-w-1    lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
                   placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -128,11 +110,11 @@ const Login = () => {
               <div className="text-[#00356B] text-[18px]">
                 <p>Confirm Password</p>
                 <input
-                  type="text"
-                  className=" border border-solid border-[#00356B] border-w-1  text-[white]  lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
+                  type="password"
+                  className=" border border-solid border-[#00356B] border-w-1    lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
                   placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
               <div>
@@ -140,7 +122,7 @@ const Login = () => {
                   type="submit"
                   className="text-[#fff]  w-full p-2 px-[100px] py-4  border border-1 border-[#9CFA4A2B]   bg-[#00356B]  text-center "
                 >
-                  Signup
+                  {loading ? "Loading" : "Signup"}
                 </button>
               </div>
               <p class="pt-4">
@@ -153,4 +135,4 @@ const Login = () => {
     </>
   );
 };
-export default Login;
+export default Signup;

@@ -1,40 +1,56 @@
-import React from "react";
-import { VscClose } from "react-icons/vsc";
+import React, { useState } from "react";
 
-const AddTaskModal = ({ onClose }) => {
+const Modal = ({ handleAddTodo, isOpen, onClose, children }) => {
+  const [task, setTask] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleAddTodo();
+    onClose();
+
+    console.log("in ererer");
+  };
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="flex justify-between pb-4">
-          <h2 className="text-[#00356B] text-[18px]  text-center   font-[700] lg:text-[30px]  ">
-            Add Task
-          </h2>
-          <VscClose onClick={onClose} />
-        </div>
-        <div>
-          <div className="text-[#00356B] text-[18px]">
-            <p>New Task</p>
-            <input
-              type="text"
-              id="task"
-              name="task"
-              className=" border border-solid border-[#00356B] border-w-1 text-[white]  lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
-              placeholder="Go Shopping"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 max-w-[700px] mx-auto rounded-lg">
+            {children}
+
+            <div className="flex justify-between items-center">
+              <p className="font-bold text-[18px]">Add Task</p>
+              <button
+                onClick={onClose}
+                className="mt-4 p-2 px-4 bg-[#00356B] text-white rounded-md"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="text-[#00356B] text-[18px]">
+              <p>Task</p>
+              <input
+                type="email"
+                id="email"
+                // value={email}
+                name="email"
+                className=" border border-solid border-[#00356B] border-w-1  lg:h-[60px]  justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
+                placeholder="Add Task"
+                // onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
             <button
-              type="submit"
-              className="text-[#fff]  w-full p-2 px-[100px] py-4  border border-1 border-[#9CFA4A2B]   bg-[#00356B]  text-center "
+              className="mt-4 p-2 px-4 bg-white   border border-solid border-[#00356B] p-2 text-[#00356B]  w-full rounded-md"
+              onClick={handleAddTodo}
             >
-              Add Task
+              Add
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 
-export default AddTaskModal;
+export default Modal;

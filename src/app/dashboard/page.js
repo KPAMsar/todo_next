@@ -1,15 +1,130 @@
 "use client";
 import { useState } from "react";
 import { RxDotsVertical } from "react-icons/rx";
-import AddTaskModal from "@/components/modal";
-import Dropdown from "@/components/dropdown";
+import { FaPlus } from "react-icons/fa";
+import Modal from "../../components/modal";
+import { useQuery, useMutation, gql } from "@apollo/client";
+import { ADD_TODO_MUTATION } from "../graphql/mutations.graphql";
+import { client } from "../graphql/client";
+import { useEffect } from "react";
+import { GET_ALL_TODO } from "../graphql/queries.graphql";
+import { toast } from "react-toastify";
+import {
+  UPDATE_MUTATION,
+  DELETE_TODO_MUTATION,
+} from "../graphql/mutations.graphql";
 
 const Dashboard = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [task, setTask] = useState();
+  const [allTodo, setAllTodo] = useState([]);
+  const [loadingDone, setLoadingDone] = useState(false);
+  const [btn, setBtn] = useState();
+  const [updateModal, setUpdateModal] = useState(false);
+  const [updatedTask, setUpdatedTask] = useState();
 
-  const initModal = () => {
+  // const { loading, error, data } = useQuery(GET_DATA);
+
+  let data;
+
+  const handleDelete = async (id) => {
+    try {
+      const result = await client.mutate({
+        mutation: DELETE_TODO_MUTATION,
+        variables: {
+          id,
+        },
+      });
+
+      toast.success("Todo deleted Successfully");
+      return;
+    } catch (error) {
+      console.error("Error deleting todo:", error.message);
+      toast.error(error.message);
+    }
+  };
+
+  const handleAddTodo = async (e) => {
+    e.preventDefault();
+    if (!task) {
+      toast.error("Task field is neede");
+      return;
+    }
+    try {
+      const result = await client.mutate({
+        mutation: ADD_TODO_MUTATION,
+        variables: {
+          task: task,
+          status: "Pending",
+        },
+      });
+    } catch (error) {
+      console.error("Error adding todo:", error.message);
+    }
+    toast.success("Todo item added succesfully");
+    setModalVisible(false);
+    setTask("");
+  };
+
+  const handleUpdateTodo = async (id, updatedTask) => {
+    try {
+      const result = await client.mutate({
+        mutation: UPDATE_MUTATION,
+        variables: {
+          id: selectedItemId,
+          task: updatedTask,
+          status: "Pending",
+        },
+      });
+      console.log("Todo updated successfully:", result.data.updateTodo);
+      // Handle success or update state if needed
+    } catch (error) {
+      console.error("Error updating todo:", error.message);
+      // Handle error if needed
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data } = await client.query({
+          query: GET_ALL_TODO,
+        });
+        setAllTodo(data?.allTodo || []);
+        this.data = data?.allTodo || [];
+        console.log("result", data.allTodo);
+      } catch (error) {
+        console.error("Error fetching data:", error.message);
+      }
+    };
+
+    fetchData();
+  }, [client]);
+
+  const handleDone = async () => {
+    console.log(selectedItemId);
+    setLoadingDone(true);
+
+    try {
+      const result = await client.mutate({
+        mutation: UPDATE_MUTATION,
+        variables: {
+          id: selectedItemId,
+          status: "Done",
+        },
+      });
+
+      setSelectedItemId("");
+      console.log("Task updated successfully:", result.data);
+    } catch (error) {
+      console.error("Error updating task:", error.message);
+    }
+  };
+
+  const openModal = () => {
     setModalVisible(true);
   };
 
@@ -26,80 +141,13 @@ const Dashboard = () => {
   };
 
   const handleSelect = (option) => {
-    // Handle the selected option, e.g., update state or perform an action
     console.log(`Selected option: ${option}`);
   };
 
   const options = ["Option 1", "Option 2", "Option 3"];
 
-  const data = [
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-    {
-      task: "Cleaning",
-      status: "Done",
-    },
-  ];
-
   const [alltask, setAllTask] = useState(true);
+
   return (
     <>
       <div className=" lg:mb-[6rem] w-[100dvw]  overflow-hidden md:pl-[30px] pr-[10px] pl-[10px] md:pr-[30px] lg:pl-[48px]   lg:pr-[40px] fixed ">
@@ -138,7 +186,7 @@ const Dashboard = () => {
           <p className="text-[#00356B] text-[18px]  text-center   font-[600] lg:text-[30px]  ">
             {alltask ? "All Tasks" : " Completed Tasks"}
           </p>
-          <table className="table w-[100dvw] overflow-hidden lg:w-full lg:pb-[60px]">
+          <table className="table w-[100dvw] overflow-auto lg:w-full lg:pb-[60px]">
             <thead className="text-[#00356B]">
               <tr>
                 <th className="min-w-[10px]">s/n</th>
@@ -147,8 +195,8 @@ const Dashboard = () => {
                 <th className="min-w-[50px]">Actions</th>
               </tr>
             </thead>
-            <tbody className=" text-[#00356B]">
-              {data.map((item, index) => (
+            <tbody className=" text-[#00356B] max-h-[500px] overflow-auto">
+              {allTodo?.map((item, index) => (
                 <tr
                   key={index}
                   style={{
@@ -157,7 +205,6 @@ const Dashboard = () => {
                   }}
                 >
                   <td
-                    onClick={initModal}
                     style={{ border: "none", textAlign: "center" }}
                     className="p-[1rem] text-[#787878]"
                   >
@@ -173,7 +220,9 @@ const Dashboard = () => {
                     style={{ border: "none" }}
                     className="p-[1rem]  text-[#787878] flex justify-center"
                   >
-                    <button className="btn  text-[green]">{item.status}</button>
+                    <button className="btn  text-[#787878]">
+                      {item.status}
+                    </button>
                   </td>
                   {/* <td
                     onClick={initModal}
@@ -188,27 +237,142 @@ const Dashboard = () => {
                     className="p-[1rem] text-[#787878]"
                   >
                     <div style={{ position: "relative" }}>
-                      <RxDotsVertical
+                      {/* <RxDotsVertical
                         style={{
                           display: "block",
                           margin: "auto",
                           cursor: "pointer",
                         }}
                         onClick={openDropdown}
-                      />
-                      {isDropdownVisible && (
-                        <Dropdown options={options} onSelect={handleSelect} />
-                      )}
+                      /> */}
+                      {/* {isDropdownVisible && (
+                        // <Dropdown options={options} onSelect={handleSelect} />
+                      )} */}
+                      <div className="flex justify-evenly">
+                        <button
+                          type="button"
+                          id={item.id}
+                          className="btn mt-4 p-2 px-4 bg-[green] text-white rounded-md"
+                          onClick={() => {
+                            setSelectedItemId(item.id);
+                            handleDone();
+                          }}
+                        >
+                          Done
+                        </button>
+                        <button
+                          type="button"
+                          id={item.id}
+                          className="btn mt-4 p-2 px-4 bg-[#00356B] text-white rounded-md"
+                          onClick={() => {
+                            setSelectedItemId(item.id);
+
+                            setUpdateModal(true);
+                          }}
+                        >
+                          Update
+                        </button>
+                        <button
+                          type="button"
+                          id={item.id}
+                          className="btn mt-4 p-2 px-4 bg-[#FF0000] text-white rounded-md"
+                          onClick={() => {
+                            setSelectedItemId(item.id);
+                            handleDelete(item.id);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
+
+            <div
+              className="fixed bottom-0 right-0 p-[20px] m-[30px] flex items-center justify-center bg-[#00356B] text-white rounded-[60px]"
+              onClick={openModal}
+            >
+              <FaPlus size={24} />
+            </div>
           </table>
         </div>
       </div>
 
-      {isModalVisible && <AddTaskModal onClose={closeModal} />}
+      {isModalVisible && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 max-w-[700px] mx-auto rounded-lg">
+            <div className="flex justify-between items-center">
+              <p className="font-bold text-[18px]">Add Task</p>
+              <button
+                className="mt-4 p-2 px-4 bg-[#00356B] text-white rounded-md"
+                onClick={() => setModalVisible(false)}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="text-[#00356B] text-[18px]">
+              <p>Task</p>
+              <input
+                type="text"
+                id="task"
+                name="task"
+                className="border border-solid border-[#00356B] border-w-1 lg:h-[60px] justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
+                placeholder="Add Task"
+                value={task}
+                onChange={(e) => setTask(e.target.value)}
+              />
+            </div>
+
+            <button
+              className="mt-4 p-2 px-4 bg-white   border border-solid border-[#00356B] p-2 text-[#00356B]  w-full rounded-md"
+              onClick={handleAddTodo}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      )}
+
+      {updateModal && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-8 max-w-[700px] mx-auto rounded-lg">
+            <div className="flex justify-between items-center">
+              <p className="font-bold text-[18px]">Update Task </p>
+              <button
+                className="mt-4 p-2 px-4 bg-[#00356B] text-white rounded-md"
+                onClick={() => setUpdateModal(false)}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="text-[#00356B] text-[18px]">
+              <p>Task</p>
+              <input
+                type="text"
+                id="task"
+                name="task"
+                className="border border-solid border-[#00356B] border-w-1 lg:h-[60px] justify-between flex flex-col justify-item p-2 lg:p-4 gap-3 w-[100%] h-[50px] mb-[30px]"
+                placeholder="Add Task"
+                value={updatedTask}
+                onChange={(e) => setUpdatedTask(e.target.value)}
+              />
+            </div>
+
+            <button
+              className="mt-4 p-2 px-4 bg-white   border border-solid border-[#00356B] p-2 text-[#00356B]  w-full rounded-md"
+              onClick={(e) => {
+                handleUpdateTodo(e);
+              }}
+            >
+              Update Task
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };
